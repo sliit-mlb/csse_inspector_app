@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Inspector App</string>
+
+    <string name="toolbarHome">Home</string>
+    <string name="toolbarAccount">My Profile</string>
+    <string name="toolbarLogout">Logout</string>
+
+    <string name="btnLogin">Login</string>
+
+    <string name="hintUsername">Username</string>
+    <string name="hintPassword">Password</string>
+</resources>
