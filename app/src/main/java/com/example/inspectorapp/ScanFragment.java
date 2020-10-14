@@ -3,6 +3,7 @@ package com.example.inspectorapp;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,17 +31,15 @@ public class ScanFragment extends Fragment {
 
     CodeScanner codeScanner;
     CodeScannerView scannerView;
-    TextView resultData;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_scan, container, false);
+        final View view = inflater.inflate(R.layout.fragment_scan, container, false);
 
         final Activity activity = getActivity();
 
         scannerView = view.findViewById(R.id.scanner_view);
-        resultData = view.findViewById(R.id.textResult);
 
         codeScanner = new CodeScanner(activity,scannerView);
         codeScanner.setDecodeCallback(new DecodeCallback() {
@@ -49,7 +48,19 @@ public class ScanFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(activity,"Hi",Toast.LENGTH_LONG).show();
+                        String resul = result.getText().toString();
+                        int resInt = Integer.parseInt(resul);
+                        if(resInt<9999) {
+                            Toast.makeText(getActivity().getApplicationContext(), "Valid User", Toast.LENGTH_LONG).show();
+                        }else{
+                            LayoutInflater inflater = getLayoutInflater();
+                            View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) view.findViewById(R.id.custom_toast_layout));
+                            Toast toast = new Toast(getActivity().getApplicationContext());
+                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 100);
+                            toast.setDuration(Toast.LENGTH_LONG);
+                            toast.setView(layout);
+                            toast.show();
+                        }
                     }
                 });
             }
