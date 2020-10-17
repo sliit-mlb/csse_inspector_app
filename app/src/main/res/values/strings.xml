@@ -7,11 +7,13 @@
 
     <string name="btnLogin">Login</string>
 
-    <string name="hintUsername">Username</string>
+    <string name="hintUsername">Username (Inspector ID)</string>
     <string name="hintPassword">Password</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="errorMsg">Error!!! Passenger not found!</string>
+
+    <string name="usernameAndId">Username(ID)</string>
 </resources>

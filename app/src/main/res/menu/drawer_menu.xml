@@ -10,18 +10,9 @@
             android:title="@string/toolbarHome" />
 
         <item
-            android:id="@+id/menu_account"
-            android:icon="@drawable/ic_account"
-            android:title="@string/toolbarAccount" />
+            android:id="@+id/menu_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="@string/toolbarLogout" />
     </group>
-
-    <item android:title="">
-        <menu>
-            <item
-                android:id="@+id/menu_logout"
-                android:icon="@drawable/ic_logout"
-                android:title="@string/toolbarLogout" />
-        </menu>
-    </item>
 
 </menu>

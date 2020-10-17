@@ -2,12 +2,12 @@ package com.example.inspectorapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +17,12 @@ import androidx.fragment.app.Fragment;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.Result;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -25,12 +31,11 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-import java.util.Scanner;
-
 public class ScanFragment extends Fragment {
 
     CodeScanner codeScanner;
     CodeScannerView scannerView;
+    MediaPlayer mediaPlayer;
 
     @Nullable
     @Override
@@ -49,18 +54,8 @@ public class ScanFragment extends Fragment {
                     @Override
                     public void run() {
                         String resul = result.getText().toString();
-                        int resInt = Integer.parseInt(resul);
-                        if(resInt<9999) {
-                            Toast.makeText(getActivity().getApplicationContext(), "Valid User", Toast.LENGTH_LONG).show();
-                        }else{
-                            LayoutInflater inflater = getLayoutInflater();
-                            View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) view.findViewById(R.id.custom_toast_layout));
-                            Toast toast = new Toast(getActivity().getApplicationContext());
-                            toast.setGravity(Gravity.CENTER_VERTICAL, 0, 100);
-                            toast.setDuration(Toast.LENGTH_LONG);
-                            toast.setView(layout);
-                            toast.show();
-                        }
+
+                        validate(resul,view);
                     }
                 });
             }
@@ -76,10 +71,40 @@ public class ScanFragment extends Fragment {
         return view;
     }
 
+    private void validate(String pid, final View view) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Passanger");
+
+        Query checkInspector = reference.orderByChild("pid").equalTo(pid);
+
+        checkInspector.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Valid User", Toast.LENGTH_LONG).show();
+                }else{
+                    mediaPlayer = MediaPlayer.create(getActivity(),R.raw.sound_error);
+                    mediaPlayer.start();
+
+                    LayoutInflater inflater = getLayoutInflater();
+                    View layout = inflater.inflate(R.layout.custom_toast, (ViewGroup) view.findViewById(R.id.custom_toast_layout));
+                    Toast toast = new Toast(getActivity().getApplicationContext());
+                    toast.setGravity(Gravity.CENTER_VERTICAL, 0, 100);
+                    toast.setDuration(Toast.LENGTH_LONG);
+                    toast.setView(layout);
+                    toast.show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        //codeScanner.startPreview();
         requestForCamera();
     }
 
@@ -102,10 +127,4 @@ public class ScanFragment extends Fragment {
             }
         }).check();
     }
-
-    /*@Override
-    public void onPause() {
-        codeScanner.releaseResources();
-        super.onPause();
-    }*/
 }
