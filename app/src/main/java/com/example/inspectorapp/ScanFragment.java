@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.example.inspectorapp.Common.CommonConstants;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,10 +34,18 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 public class ScanFragment extends Fragment {
 
-    CodeScanner codeScanner;
-    CodeScannerView scannerView;
-    MediaPlayer mediaPlayer;
+    private CodeScanner codeScanner;
+    private CodeScannerView scannerView;
+    private MediaPlayer mediaPlayer;
 
+    /**
+     * This is OnCreate View for ScanFragment
+     *
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -46,7 +55,7 @@ public class ScanFragment extends Fragment {
 
         scannerView = view.findViewById(R.id.scanner_view);
 
-        codeScanner = new CodeScanner(activity,scannerView);
+        codeScanner = new CodeScanner(activity, scannerView);
         codeScanner.setDecodeCallback(new DecodeCallback() {
             @Override
             public void onDecoded(@NonNull final Result result) {
@@ -55,15 +64,15 @@ public class ScanFragment extends Fragment {
                     public void run() {
                         String resul = result.getText().toString();
 
-                        validate(resul,view);
+                        validate(resul, view);
                     }
                 });
             }
         });
 
-        scannerView.setOnClickListener(new View.OnClickListener(){
+        scannerView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view1){
+            public void onClick(View view1) {
                 codeScanner.startPreview();
             }
         });
@@ -71,18 +80,24 @@ public class ScanFragment extends Fragment {
         return view;
     }
 
+    /**
+     * This method valid the Passenger QR Code
+     *
+     * @param pid
+     * @param view
+     */
     private void validate(String pid, final View view) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Passanger");
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference(CommonConstants.COLLECTION_NAME_PASSENGER);
 
-        Query checkInspector = reference.orderByChild("pid").equalTo(pid);
+        Query checkInspector = reference.orderByChild(CommonConstants.PASSENGER_KEY_PID).equalTo(pid);
 
         checkInspector.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    Toast.makeText(getActivity().getApplicationContext(), "Valid User", Toast.LENGTH_LONG).show();
-                }else{
-                    mediaPlayer = MediaPlayer.create(getActivity(),R.raw.sound_error);
+                if (dataSnapshot.exists()) {
+                    Toast.makeText(getActivity().getApplicationContext(), CommonConstants.TOAST_VALID_USER, Toast.LENGTH_LONG).show();
+                } else {
+                    mediaPlayer = MediaPlayer.create(getActivity(), R.raw.sound_error);
                     mediaPlayer.start();
 
                     LayoutInflater inflater = getLayoutInflater();
@@ -102,12 +117,18 @@ public class ScanFragment extends Fragment {
         });
     }
 
+    /**
+     * This is onResume()
+     */
     @Override
     public void onResume() {
         super.onResume();
         requestForCamera();
     }
 
+    /**
+     * This is request for Camera
+     */
     private void requestForCamera() {
         Dexter.withActivity(getActivity()).withPermission(Manifest.permission.CAMERA).withListener(new PermissionListener() {
             @Override
@@ -117,7 +138,7 @@ public class ScanFragment extends Fragment {
 
             @Override
             public void onPermissionDenied(PermissionDeniedResponse response) {
-                Toast.makeText(getActivity(), "Camera Permission is Required.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), CommonConstants.TOAST_CAMERA_PERMISSION, Toast.LENGTH_SHORT).show();
             }
 
             @Override
